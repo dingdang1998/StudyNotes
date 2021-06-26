@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace:该mapper.xml映射文件的 唯一标识 -->
+<mapper namespace="org.lanqiao.mapper.StudentMapper">
+	<!--  后续通过  namespace.id-->
+	<!--parameterType:输入参数的类型
+	resultType：查询返回结果值的类型  ，返回类型  -->
+	
+	<select id="queryStudentByStuno" 	parameterType="int"  	resultMap="studentMapping" >
+		select * from student where stuno = #{stuno}
+	</select>
+	
+	<resultMap type="student" id="studentMapping">
+			<!-- 分为主键id 和非主键 result-->
+			<id property="id"  column="stuno"  />
+			<result property="stuName"  column="stuname" />
+			<result property="stuAge"  column="stuage" />
+			<result property="graName"  column="graname" />
+			<result property="stuSex"  column="stusex"  javaType="boolean" jdbcType="INTEGER"/>
+	
+	
+	</resultMap>
+	
+	
+	 
+	
+	<!-- 查询：使用了类型转换器
+	1如果 类中属性 和表中的字段 类型能够合理识别 （String-varchar2），则可以使用resultType;否则(boolean-number) 使用resultMap
+	2如果 类中属性名 和表中的字段名能够合理识别 （stuNo -stuno）则可以使用resultType;否则(id-stuno) 使用resultMap
+	 -->
+	<select id="queryStudentByStunoWithConverter" 	parameterType="int"  	
+	resultMap="studentResult" >
+		select * from student where stuno = #{stuno}
+	</select>
+	
+	<resultMap type="student" id="studentResult">
+			<!-- 分为主键id 和非主键 result-->
+			<id property="stuNo"  column="stuno"  />
+			<result property="stuName"  column="stuname" />
+			<result property="stuAge"  column="stuage" />
+			<result property="graName"  column="graname" />
+			<result property="stuSex"  column="stusex"  javaType="boolean" jdbcType="INTEGER"/>
+	</resultMap>
+	
+	
+	<!-- 带转换器的增加 -->
+	<insert id="addStudentWithConverter" parameterType="student" >
+		insert into student(stuno,stuname,stuage,graname,stusex) values(#{stuNo},#{stuName},#{stuAge},#{graName} ,#{stuSex ,javaType=boolean  ,jdbcType=INTEGER   } ) 
+	</insert>
+	
+	
+	<insert id="addStudent" parameterType="student" >
+		insert into student(stuno,stuname,stuage,graname) values(#{stuNo},#{stuName},#{stuAge},#{graName}  ) 
+	</insert>
+	
+	
+	<delete id="deleteStudentByStuno"  parameterType="int">
+		delete from student where stuno = #{stuno} 
+	</delete>
+	
+	<update id="updateStudentByStuno" parameterType="student" >
+		update student set stuname=#{stuName} ,stuage=#{stuAge},graname=#{graName} where stuno=#{stuNo} 
+	</update>
+	
+	<select id="queryAllStudents"  resultType="sTuDenT" >
+		select * from student 
+	</select>
+
+	
+	
+	
+	
+</mapper>
