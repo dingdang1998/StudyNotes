@@ -313,7 +313,9 @@ a.获取SqlSessionFactory对象
 
 b.获取SqlSession对象
 
-c.获取XxxMapper对象（代理接口中的方法、mapper.xml中的<select>等标签）
+c.获取XxxMapper对象（代理接口中的方法、mapper.xml中的<select>
+
+等标签）
 
 d.执行<select>等标签中定义的SQL语句
 
@@ -337,8 +339,6 @@ environments等属性标签；
 
 > 每一个增删改都对应一个MappedStatement对象
 
-
-
 **总结：**
 
 MappedStatement ->存在于Configuration中
@@ -351,9 +351,9 @@ Configuration又存在于DefaultSqlSessionFactory对象中（SqlSessionFactory�
 
 ->
 
-SqlSessionFactory对象 ->DefaultSqlSessionFactory ->Configuration ->包含了一切配置
+SqlSessionFactory对象 ->DefaultSqlSessionFactory ->Configuration ->包
 
-信息
+含了一切配置信息
 
 ### 获取SqlSession对象
 
@@ -373,24 +373,80 @@ executor = (Executor) interceptorChain.pluginAll(executor);
 
 **总结：**
 
-SqlSession -》openSession()->openSessionFromDataSource()->DefaultSqlSession对
+SqlSession -》openSession()->openSessionFromDataSource()-
 
-象
+>DefaultSqlSession对象
 
 SqlSession -》 DefaultSqlSession对象 -》执行SQL
 
 ### 获取XxxMapper对象、执行
 
-执行增删改查->MapperProxy/invoke()-->InvocationHandler ：JDK动态代理接口
+执行增删改查->MapperProxy/invoke()-->InvocationHandler ：JDK动态代
 
-> 用到了 动态代理模式：增删改查 -> 代理对象 （MapperProxy对象） ->代理对象帮
+理接口
+
+> 用到了 动态代理模式：增删改查 -> 代理对象 （MapperProxy对象） -
+>
+> 代理对象帮
 >
 > 我们“代理执行” 增删改查
 
-mapperMethod.execute(sqlSession,args) ：实际调用增删改查的方法，依靠了
+* mapperMethod.execute(sqlSession,args) ：实际调用增删改查的方
 
-sqlSession中的configuration和 executor
+  法，依靠了sqlSession中的configuration和 executor
 
-处理增删改查方法的参数：method.convertArgsToSqlCommandParam(args); 
+* 处理增删改查方法的参数：
 
-如果参数是0个，reutrun null ;如果参数是1，返回第一个；如果有多个参数放入map中
+method.convertArgsToSqlCommandParam(args); 
+
+如果参数是0个，reutrun null ;如果参数是1，返回第一个；如果有多个参
+
+数放入map中
+
+* 执行SQL 是通过Executor 
+
+* 如果缓存中没有要查询的内容，则进入数据库真实查询：
+
+queryFromDatabase()
+
+* mybatis使用的jdbc對象是PreparedStatement
+
+* 底层执行增删改查：PreparedStatement的execute()
+
+* MyBatis底层在执行CRUD时可能会涉及到四个处理器：
+
+  StatementHandler  ParameterHandler  TypeHandler 
+
+  ResultSetHandler
+
+* xxxMapper对象包含： SqlSession(configuration,executor,事务)、代
+
+  理接口的对象(MapperInterface)、methodCache(存放查询缓存， 底
+
+  层是CurrentHashMap)
+
+# 自定义插件
+
+* 四个处理器
+
+StatementHandler  ParameterHandler   ResultSetHandler   TypeHandler
+
+* 四大核心对象
+
+StatementHandler  ParameterHandler   ResultSetHandler    Executor
+
+**共同点：**
+
+1、都涉及到了拦截器用于增强
+
+2、四大核心对象都包含了该增强操作
+
+# 批量操作DML
+
+```java
+//推荐的写法
+sessionFactory.openSession(ExecutorType.BATCH ); 
+```
+
+
+
