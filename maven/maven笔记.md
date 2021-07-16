@@ -152,6 +152,66 @@ i.在同一个pom.xml文件中有2个相同的依赖（覆盖）：后面声明�
 
 ii.如果是不同的 pom.xml中有2个相同的依赖（优先）：则先声明的依赖 ，会覆盖后声明的依赖
 
+### 继承
+
+只要A继承于B则A可以使用B的所有依赖
+
+#### 继承实现步骤
+
+1.建立父工程： 父工程的打包方式为pom
+
+2.在父工程的pom.xml中编写依赖
+
+```java
+<dependencyManagement>
+  	<dependencies>
+  		<dependency>
+```
+
+ 3.子类
+
+```java
+<!-- 给当前工程 继承一个父工程：1加入父工程坐标gav   2当前工程的Pom.xml到父工程的Pom.xml之间的 相对路径  -->
+<parent>
+ 	<!-- 1加入父工程坐标gav -->
+ 	<groupId>org.lanqiao.maven</groupId>
+	<artifactId>B</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<!-- 2当前工程的Pom.xml到父工程的Pom.xml之间的 相对路径 --> 
+	<relativePath>../B/pom.xml</relativePath>
+ </parent>
+```
+
+4.在子类中需要声明 ：使用那些父类的依赖
+
+```java
+<dependency>
+	<!-- 声明：需要使用到父类的junit （只需要ga） -->
+	<groupId>junit</groupId>
+	<artifactId>junit</artifactId>
+</dependency>
+```
+
+### 聚合
+
+Maven项目能够识别的：自身包含、本地仓库中的
+
+> Maven2依赖于Maven1，则在执行时：必须先将Maven1加入到本地仓库(install)，之后才能执行Maven2
+
+**以上前置工程的install操作，可以交由“聚合” 一次性搞定**
+
+#### 聚合的使用
+
+聚合的配置只能配置在（打包方式为pom）的Maven工程中
+
+```java
+<modules>
+  		<!--项目的根路径  -->
+  	  <module>../Maven1</module>
+  	  <module>../Maven2</module>
+</modules>
+```
+
 ### maven常见命令
 
 第一次执行命令时，因为需要下载执行该命令的基础环境，所以会从中央仓库下载该环境到本地仓库
