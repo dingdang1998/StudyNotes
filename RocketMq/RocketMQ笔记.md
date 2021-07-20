@@ -1,63 +1,70 @@
 # 消息队列（Message Queue）
 
+## 消息队列作用
 
+### 削峰填谷
 
-## 作用
+秒杀，可以将峰值的流量转移到其他地方（谷）
 
-- 削峰填谷
+### 解耦合
 
-  ​	秒杀。 可以将 峰值的流量 转移到 其他地方（谷）
+生产者和消费者可以通过mq解耦合
 
-- 解耦合
+生产者-mq-消费者
 
-  ​	生产者 和 消费者 可以通过 mq解耦合
+### 异步消息
 
-  生产者-mq-消费者
-
-- 异步消息
-
-  生产者-mq-消费者
-
-
+生产者-mq-消费者
 
 ## 主流MQ产品
 
-​	协议：AMQP （Advanced Message QUeuing Protocol,高级消息队列协议）  、XMPP、  SMTP、 STMP
+**所支持的协议：**AMQP （Advanced Message QUeuing Protocol，高级消息队列协议） 、XMPP、SMTP、 STMP
 
-- ActiveMQ： apache ,多种协议（AMQP ，MQTT,OpenWire,Stomp ） , java ，将数据直接持久化到数据库中，可靠性较低
+### ActiveMQ
 
-- RabbitMQ: 基于AMQP ， 运行Erlang语言，性能高，高并发，可靠性高
-- Kafaka: linkedin开源MQ，完全分布式架构，高吞吐量（单机10w/s） ，设计之初 是为了 处理 日志 ， 大量数据的数据收集业务
-- RocketMQ：阿里巴巴->Apache ,  双十一 ，Java/C++/go语言，支持多协议(AMQP,XMPP,STMP,STOP）,分布式 易扩展 ， 亿级消息堆积能力（单机1万以上 持久化队列）
-- 其他MQ: Redis , ZeroMQ
+ apache ,多种协议（AMQP，MQTT，OpenWire，Stomp） , java，将数据直接持久化到数据库中，可靠性较低
 
+### RabbitMQ
 
+ 基于AMQP ，运行Erlang语言，性能高，高并发，可靠性高
+
+### Kafaka
+
+linkedin开源MQ，完全分布式架构，高吞吐量（单机10w/s） ，设计之初是为了处理日志 ， 大量数据的数据收集业务
+
+### RocketMQ
+
+阿里巴巴->Apache，,双十一，Java/C++/go语言，支持多协议(AMQP,XMPP,STMP,STOP）,分布式易扩展，亿级消息堆积能力（单机1万以上持久化队列）
+
+### 其他MQ
+
+Redis , ZeroMQ
 
 ## RocketMQ
 
-## 角色
+### 角色
 
-- Producer:生产者
+- Producer：生产者
 - Consumer：消费者
-  - Push Consumer: Broker将消息 推 给 消费者
-  - Pull Consumer: 消费者 请求 Broker将 消息发送给我（拉）
-- Broker:MQ消息服务
-- Producer Group: 生产者集合
-- Consumer Group：消费者集合
+  - PushConsumer：Broker主动将消息推给消费者
+  - PullConsumer：消费者请求Broker将消息发送给我（拉）
+- Broker：MQ消息服务
+- ProducerGroup： 生产者集合
+- ConsumerGroup：消费者集合
 
+### 搭建RoketMQ环境
 
-
-## 搭建RoketMQ环境
+**部署环境：**
 
 centos7 :  192.168.2.128   root/root   
 
-下载
+**下载：**
 
-http://rocketmq.apache.org/release_notes/release-notes-4.4.0/  :binary
+http://rocketmq.apache.org/release_notes/release-notes-4.4.0/  ：binary
 
 上传到centos7中
 
-解压
+**解压：**
 
 tar -zxvf    XXX.tar.gz
 
