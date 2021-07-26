@@ -40,9 +40,9 @@ linkedin开源MQ，完全分布式架构，高吞吐量（单机10w/s） ，设�
 
 Redis , ZeroMQ
 
-## RocketMQ
+# RocketMQ
 
-### 角色
+## 角色
 
 - Producer：生产者
 - Consumer：消费者
@@ -52,58 +52,54 @@ Redis , ZeroMQ
 - ProducerGroup： 生产者集合
 - ConsumerGroup：消费者集合
 
-### 搭建RoketMQ环境
+## 搭建RoketMQ环境
 
-**部署环境：**
+### 部署环境
 
 centos7 :  192.168.2.128   root/root   
 
-**下载：**
+### 下载
 
 http://rocketmq.apache.org/release_notes/release-notes-4.4.0/  ：binary
 
 上传到centos7中
 
-**解压：**
+### 解压
 
-tar -zxvf    XXX.tar.gz
+tar -zxvf    XXX.tar.gz（gz结尾用这个命令）
 
-unzip Xxx.zip
+unzip Xxx.zip（zip结尾用这个命令）
 
+### 配置master
 
+nameserver: 协调多个rocketmq
 
-配置：--配置master开始--
+master : rocketmq主节点
 
-​	nameserver: 协调多个rocketmq
-
-​	master : rocketmq主节点
-
-域名映射：
+#### 域名映射
 
 vi /etc/hosts
 
 192.168.2.128 mqnameserver1
 192.168.2.128 mqmaster1
 
+#### 存储路径 
 
+在rocketmq文件夹下
 
-存储路径 ：mkdir mqstore
+mkdir mqstore4.4
 
-mkdir mqstore/commitlog
+mkdir mqstore4.4/commitlog
 
-mkdir mqstore/consumequeue
+mkdir mqstore4.4/consumequeue
 
-mkdir mqstore/index
+mkdir mqstore4.4/index
 
+#### 配置消息队列broker
 
-
-配置消息队列: broker
-
-路径：/usr/rocketmq/conf
+文件所在路径：/usr/rocketmq/conf
 
 2m-2s-async  ：  2m   两个master , 2s 两个slaver  ,async：异步
-
-
 
 配置单机版： broker-a.properties :
 
@@ -134,35 +130,27 @@ brokerRole=ASYNC_MASTER
 flushDiskType=ASYNC_FLUSH
 ```
 
-
-
-配置日志：
+#### 配置日志
 
 一次性的将 所有xml中的 ${user.home} 替换为/usr/rocketmq
 
 sed -i 's#${user.home}#/usr/rocketmq#g'  *.xml
 
+#### 修改启动参数
 
-
-启动参数：
-
-​	将bin/runbroker.sh      runserver.sh ：
+将bin/runbroker.sh      runserver.sh ：
 
 JAVA_OPT="${JAVA_OPT} -server -Xms1g -Xmx1g -Xmn1g 
 
+#### 启动Namesrv
 
-
-启动Namesrv：
-
-​	bin中： nohup sh mqnamesrv &
+bin中： nohup sh mqnamesrv &
 
 查看进程：
 
 NamesrvStartup 说明启动Namesrv成功
 
-
-
-启动BrokerServer:
+#### 启动BrokerServer
 
 nohup sh mqbroker -c /usr/rocketmq/conf/2m-2s-async/broker-a.properties &
 
@@ -170,64 +158,61 @@ nohup sh mqbroker -c /usr/rocketmq/conf/2m-2s-async/broker-a.properties &
 
 BrokerStartup  说明broker启动成功
 
-
-
 ## 控制台（Web界面）
 
-下载
+### 下载
 
 https://github.com/apache/rocketmq-externals
 
-解压缩
+### 解压缩
 
-导入工程（修改maven,改为自己本地配置的maven）
+#### 在idea中跑控制台
 
+1、导入工程，将zip下的rocket-console导入idea
 
+2、修改idea的maven配置，改为自己本地配置的maven
 
-maven加速：
+**maven加速**
 
 阿里云加速
 
 在本地maven的配置文件settings.xml中 加入以下：
 
-```
-    <mirror>  
+```java
+<mirror>  
       <id>alimaven</id>  
       <name>aliyun maven</name>  
-      <url>http://maven.aliyun.com/nexus/content/groups/public/</url>  
-      <mirrorOf>central</mirrorOf>          
-    </mirror>
+      <url>http://maven.aliyun.com/nexus/content/groups/public/</url>  		 <mirrorOf>central</mirrorOf>          
+</mirror>
 ```
 
-在application.properties中配置 mq服务地址
+3、在application.properties中配置 mq服务地址
 
-```
+```java
 rocketmq.config.namesrvAddr=192.168.2.128:9876
 ```
 
+4、可以将源码中的jdk版本从1.7换成1.8
 
+5、批量删除 maven下载失败的jar：for /r %i in (*.lastUpdated) do del %i
 
-也可以将控制台工程打成jar，然后运行Jar即可：
+#### 将控制台代码打成jar，然后跑jar包
 
-打成jar:
+**打成jar:**
 
 mvn clean package -Dmaven.test.skip=true
 
-执行：
+**执行：**
 
 java -jar   jar包名字.jar
 
+## 创建mq工程（Springboot工程）
 
-
-
-
-## 创建mq工程
-
-maven工程 (修改maven配置，同上一步)
+### 依赖配置
 
 pom.xml
 
-```
+```java
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -282,39 +267,26 @@ pom.xml
             <version>${rocketmq.version}</version>
         </dependency>
     </dependencies>
-
-
 </project>
 ```
 
+#### 批量删除下载失败的依赖包
 
+批量删除 maven下载失败的jar【进maven本地仓库，敲cmd，执行这句话】：for /r %i in (*.lastUpdated) do del %i
 
-如果在控制台查询消息时 topic无反应（或者报错desc208） ，原因是rocketmq内部问题（ac认证问题）
+### 第一个MQ程序
 
-
-
-
-
-
-
-## 第一个MQ程序
-
-
+#### 服务器地址代码
 
 ```
 public class CONST {
     public static final String NAMESERVER_ADDR = "192.168.2.128:9876" ;
 }
-
 ```
 
+#### 生产者代码
 
-
-
-
-生产者：
-
-```
+```java
 package com.yanqun.producer;
 
 import com.yanqun.api.CONST;
@@ -341,14 +313,13 @@ public class MyProducer {
             /*
                     topic:主题（一级目录）
                     tags:标签（二级目录）
-                    keys + body :  以key-value的形式 存放内容
+                    keys + body :  以key-value的形式存放内容
              */
             Message message = new Message("mytopic1","mytag11", "key"+i,("mymq"+i) .getBytes());
             //生产者发送消息
             try {
                 SendResult result = producer.send(message);
                 System.out.println("发送成功："+ result);
-
             } catch (MQClientException e) {
                 e.printStackTrace();
             } catch (RemotingException e) {
@@ -358,22 +329,15 @@ public class MyProducer {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
-
         producer.shutdown();
-
-
     }
 }
-
 ```
 
+#### 消费者代码
 
-
-消费者
-
-```
+```java
 package com.yanqun.comsumer;
 
 import com.yanqun.api.CONST;
@@ -393,15 +357,17 @@ public class MyConsumer {
     public static void main(String[] args) {
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("myConsumer");
         consumer.setNamesrvAddr(CONST.NAMESERVER_ADDR);
-
+		//从上一次消费完的地方取
         consumer.setConsumeFromWhere( ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET );
         try {
+            //从哪个主题消费
             consumer.subscribe("mytopic1","*");
             //设置监听器：当生产者生产数据时，将数据推送给 消费者
             consumer.registerMessageListener(new MessageListenerConcurrently() {
                 @Override
                 public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
-                    MessageExt messageExt =   list.get(0) ;
+                    //一个一个消费，每次拿队列中的第0个
+                    MessageExt messageExt = list.get(0) ;
                     String topic = messageExt.getTopic();
                     String tags = messageExt.getTags();
                     String keys = messageExt.getKeys();
@@ -411,47 +377,41 @@ public class MyConsumer {
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
-
-
-                    return  ConsumeConcurrentlyStatus.CONSUME_SUCCESS;//此条消息消费成功，继续下一个...
+                    //此条消息消费成功，继续下一个...
+                    return  ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
                 }
             });
-
+			//启动消费者
             consumer.start();
-
-
         } catch (MQClientException e) {
             e.printStackTrace();
         }
 
     }
 }
-
 ```
 
+#### 异常问题
 
-
-批量删除 maven下载失败的jar：for /r %i in (*.lastUpdated) do del %i
-
-
-
-
+如果在控制台查询消息时 topic无反应（或者报错desc208） ，原因是rocketmq内部问题（ac认证问题）
 
 ## mq集群：主从同步
 
-​		
+**作用：**将mater中的数据自动备份到slaver中，一旦master挂掉，slaver可以支持继续提供数据		
 
-将master关闭：
+### 将master关闭
+
+在mq的bin目录下：
 
 [root@bigdata01 bin]# ./mqshutdown broker
 
 [root@bigdata01 bin]# ./mqshutdown namesrv
 
+### 配置slaver
 
+#### 域名映射
 
-之前已经存在了master，现在配置slaver:
-
-域名映射：
+主从节点都要这样配置
 
 vi /etc/hosts
 
@@ -461,25 +421,23 @@ vi /etc/hosts
 192.168.2.129 mqnameserver2
 192.168.2.129 mqmaster1slaver1
 
-将master节点上的 mq远程复制到slaver节点上  :scp -r rocketmq/ root@192.168.2.129:/usr/
+#### 将master节点上的mq远程复制到slaver节点上
 
-
+scp -r rocketmq/ root@192.168.2.129:/usr/
 
 /usr/rocketmq/conf/2m-2s-async/ broker-a.properties :
 
-需要修改内容
+#### 需要修改内容
 
-```
-
+```java
 brokerId=0
 rokerRole=ASYNC_MASTER
 namesrvAddr=mqnameserver1:9876;mqnameserver2:9876
-
 ```
 
 broker-a-s.properties :
 
-```
+```java
 brokerClusterName=DefaultCluster
 brokerName=broker-a
 brokerId=1
@@ -501,31 +459,31 @@ maxMessageSize=65536
 flushDiskType=ASYNC_FLUSH
 ```
 
-
-
-问题：
+#### 问题
 
 master: 主配置文件、从配置文件
 
 slaver:主配置文件、从配置文件
 
+> 这样做的目的是为了方便维护
 
+### 启动
 
-启动master-slaver:
+启动master-slaver
+
+#### 先启动master
 
 先启动master（192.168.2.128中启动）
 
 启动Namesrv：
 
-​	bin中： nohup sh mqnamesrv &
+bin中： nohup sh mqnamesrv &
 
 启动BrokerServer:
 
 nohup sh mqbroker -c /usr/rocketmq/conf/2m-2s-async/broker-a.properties &
 
-
-
-
+#### 再启动slaver
 
 再启动slaver（192.168.2.129中启动）
 
@@ -533,7 +491,7 @@ bin中： nohup sh mqnamesrv &
 
 nohup sh mqbroker -c /usr/rocketmq/conf/2m-2s-async/broker-a-s.properties  &
 
-
+### 修改项目配置文件
 
 修改项目的namersrv地址
 
@@ -541,35 +499,27 @@ nohup sh mqbroker -c /usr/rocketmq/conf/2m-2s-async/broker-a-s.properties  &
 rocketmq.config.namesrvAddr=192.168.2.128:9876;192.168.2.129:9876
 ```
 
-启动客户端
+### 启动客户端
 
-
-
-验证主从：
+#### 验证主从
 
 挂掉master, 查看能否从slaver中取数据
 
-一般： 向Master中写书，从slaver中读数据
-
-
+一般： 向Master中写数据，从slaver中读数据
 
 挂掉kill -9 进程号
 
 可以发现，当mater挂掉后，仍然可以从slaver中消费数据
 
-
-
-
-
 ## 发送消息的类型
 
-异步
+### 异步
 
 ```java
 //2发送异步消息
 /*
-  发送异步消息之后：有2个线程：a.Main线程，发送完毕 立刻执行以后的程序 ；
-  b.处理消息的线程 ，并在处理完毕后 触发回调函数
+  发送异步消息之后：有2个线程：a.Main线程，发送完毕立刻执行以后的程序；
+  b.处理消息的线程，并在处理完毕后触发回调函数
   onSuccess（）\onException()
 */
 producer.send(message, new SendCallback() {
@@ -584,34 +534,30 @@ producer.send(message, new SendCallback() {
 }); 
 ```
 
+### 同步
 
-
-同步
-
-```
+```java
  SendResult result = producer.send(message);
 //System.out.println("发送成功："+ result);
 ```
 
+### 单向发送
 
-
-单向发送
-
+```java
+ producer.sendOneway(message);//只发送，不接收返回值，不可靠的消息；不重要的数据，日志
 ```
- producer.sendOneway(message);//只发送，不接收返回值，不可靠的消息 ；不重要的数据，日志
-```
-
-
 
 ## Push Consumer消费模式
 
-### 默认集群模式：
+### 默认集群模式
 
-```
-   consumer.setMessageModel(MessageModel.CLUSTERING);
+```java
+consumer.setMessageModel(MessageModel.CLUSTERING);
 ```
 
-搭建消费者集群：只需要将groupName设置相同即可
+#### 搭建消费者集群
+
+只需要将groupName设置相同即可
 
 ![1568959735585](RocketMQ笔记.assets/1568959735585.png)
 
