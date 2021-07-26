@@ -54,22 +54,35 @@ Redis , ZeroMQ
 
 ## 搭建RoketMQ环境
 
+<<<<<<< HEAD
 ### 部署环境
 
 centos7 :  192.168.2.128   root/root   
 
 ### 下载
+=======
+#### 部署环境
+
+centos7 :  192.168.2.128   root/root   
+
+#### 下载
+>>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
 
 http://rocketmq.apache.org/release_notes/release-notes-4.4.0/  ：binary
 
 上传到centos7中
 
+<<<<<<< HEAD
 ### 解压
+=======
+#### 解压
+>>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
 
 tar -zxvf    XXX.tar.gz（gz结尾用这个命令）
 
 unzip Xxx.zip（zip结尾用这个命令）
 
+<<<<<<< HEAD
 ### 配置master
 
 nameserver: 协调多个rocketmq
@@ -77,12 +90,24 @@ nameserver: 协调多个rocketmq
 master : rocketmq主节点
 
 #### 域名映射
+=======
+#### 配置
+
+nameserver：协调多个rocketmq
+
+master（多个MQ中的老大）: rocketmq主节点
+
+**--配置master开始--**
+
+* 域名映射
+>>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
 
 vi /etc/hosts
 
 192.168.2.128 mqnameserver1
 192.168.2.128 mqmaster1
 
+<<<<<<< HEAD
 #### 存储路径 
 
 在rocketmq文件夹下
@@ -96,40 +121,77 @@ mkdir mqstore4.4/consumequeue
 mkdir mqstore4.4/index
 
 #### 配置消息队列broker
+=======
+* 存储路径
+
+如果MQ中的数据持久化，往哪里存储
+
+文件放在MQ解压文件中
+
+mkdir mqstore
+
+mkdir mqstore/commitlog（提交日志，日志信息）
+
+mkdir mqstore/consumequeue（消费队列）
+
+mkdir mqstore/index（索引值）
+
+* 配置消息队列（broker）
+>>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
 
 文件所在路径：/usr/rocketmq/conf
 
-2m-2s-async  ：  2m   两个master , 2s 两个slaver  ,async：异步
+**2m-2s-async（文件夹）：**2m   两个master , 2s 两个slaver  ,async：异步
 
+<<<<<<< HEAD
 配置单机版： broker-a.properties :
 
 brokerId：   0表示master              >0 表示slaver
+=======
+**配置单机版： broker-a.properties** 
+
+brokerId：0表示master 	 >0表示slaver
+>>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
 
 全部内容
 
 ```
+//集群的名字
 brokerClusterName=DefaultCluster
+//当前消息队列的名字
 brokerName=broker-a
+//brokerId：0表示master 	 >0表示slaver
 brokerId=0
 deleteWhen=04
 fileReservedTime=48
 brokerRole=ASYNC_MASTER
 flushDiskType=ASYNC_FLUSH
+//服务地址
 namesrvAddr=mqnameserver1:9876
+//默认主题数量
 defaultTopicQueueNums=4
+//某一个主题不存在，是否允许消息队列自动创建
 autoCreateTopicEnable=true
+//监听端口（对外访问的端口）
 listenPort=10911
+//不用的文件删除时间
 deleteWhen=04
+//文件至少保留48小时
 fileReservedTime=48
-storePathRootDir=/usr/rocketmq/mqstore
-storePathCommitLog=/usr/rocketmq/mqstore/commitlog
-storePathConsuQueue=/usr/rocketmq/mqstore/consumequeue
-storePathIndex=/usr/rocketmq/mqstore/index
+//存储路径
+storePathRootDir=/usr/rocketmq4.4/mqstore
+storePathCommitLog=/usr/rocketmq4.4/mqstore/commitlog
+storePathConsuQueue=/usr/rocketmq4.4/mqstore/consumequeue
+storePathIndex=/usr/rocketmq4.4/mqstore/index
+//每次传输消息的最大值（单位字节）--2的16次方
 maxMessageSize=65536
+//主到从是同步还是异步
 brokerRole=ASYNC_MASTER
+//队列到硬盘
 flushDiskType=ASYNC_FLUSH
 ```
 
+<<<<<<< HEAD
 #### 配置日志
 
 一次性的将 所有xml中的 ${user.home} 替换为/usr/rocketmq
@@ -145,12 +207,37 @@ JAVA_OPT="${JAVA_OPT} -server -Xms1g -Xmx1g -Xmn1g
 #### 启动Namesrv
 
 bin中： nohup sh mqnamesrv &
+=======
+**配置日志：**
+
+在MQ文件夹下
+
+mkdir logs
+
+一次性的将所有xml中的 ${user.home} 替换为/usr/rocketmq4.4
+
+sed -i 's#${user.home}#/usr/rocketmq4.4#g'  *.xml
+
+**设置启动参数：**
+
+将bin/runbroker.sh      runserver.sh ：中要求的启动参数修改
+
+JAVA_OPT="${JAVA_OPT} -server -Xms1g -Xmx1g -Xmn1g 
+
+**启动Namesrv：**
+
+在bin中后台启动： nohup sh mqnamesrv &
+>>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
 
 查看进程：
 
 NamesrvStartup 说明启动Namesrv成功
 
+<<<<<<< HEAD
 #### 启动BrokerServer
+=======
+启动BrokerServer
+>>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
 
 nohup sh mqbroker -c /usr/rocketmq/conf/2m-2s-async/broker-a.properties &
 
@@ -158,6 +245,7 @@ nohup sh mqbroker -c /usr/rocketmq/conf/2m-2s-async/broker-a.properties &
 
 BrokerStartup  说明broker启动成功
 
+<<<<<<< HEAD
 ## 控制台（Web界面）
 
 ### 下载
@@ -198,6 +286,12 @@ rocketmq.config.namesrvAddr=192.168.2.128:9876
 
 #### 将控制台代码打成jar，然后跑jar包
 
+=======
+
+
+#### 将控制台代码打成jar，然后跑jar包
+
+>>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
 **打成jar:**
 
 mvn clean package -Dmaven.test.skip=true
@@ -270,12 +364,17 @@ pom.xml
 </project>
 ```
 
+<<<<<<< HEAD
 #### 批量删除下载失败的依赖包
 
 批量删除 maven下载失败的jar【进maven本地仓库，敲cmd，执行这句话】：for /r %i in (*.lastUpdated) do del %i
 
 ### 第一个MQ程序
 
+=======
+### 第一个MQ程序
+
+>>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
 #### 服务器地址代码
 
 ```
