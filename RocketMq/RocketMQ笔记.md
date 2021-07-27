@@ -660,7 +660,7 @@ consumer.setMessageModel(MessageModel.CLUSTERING);
 
 ![1568959735585](RocketMQ笔记.assets/1568959735585.png)
 
-延迟：
+### 延迟消息
 
 不支持任意的时间精度，只支持几下几种
 
