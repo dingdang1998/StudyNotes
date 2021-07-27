@@ -605,9 +605,28 @@ producer.send(message, new SendCallback() {
  producer.sendOneway(message);//只发送，不接收返回值，不可靠的消息；不重要的数据，日志
 ```
 
+### 延迟消息
+
+定义：生产者立刻将消息发送到队列， 在队列中停留一些时间后发送给消费者
+
+不支持任意的时间精度，只支持几下几种
+
+默认配置，/usr/rocketmq/conf/broker.conf（默认配置）
+
+messageDelayLevel = 1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h
+
+![1568961292364](RocketMQ笔记.assets/1568961292364.png)
+
+```java
+//注意是生产者发送延迟消息（这里的3 指的是默认配置的第三个 所以这里设置的延迟时间是3秒）
+message.setDelayTimeLevel(3);
+```
+
 ## Push Consumer消费模式
 
 ### 默认集群模式
+
+并且默认是负载均衡，如果有10个消息，那么每个消费者各一半
 
 ```java
 consumer.setMessageModel(MessageModel.CLUSTERING);
@@ -619,33 +638,13 @@ consumer.setMessageModel(MessageModel.CLUSTERING);
 
 ![1568959735585](RocketMQ笔记.assets/1568959735585.png)
 
-### 延迟消息
-
-不支持任意的时间精度，只支持几下几种
-
-默认配置，/usr/rocketmq/conf/broker.conf（默认配置）
-
-messageDelayLevel = 1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h
-
-定义：生产者立刻将消息发送到队列， 在队列中停留一些时间后 发送给消费者
-
-![1568961292364](RocketMQ笔记.assets/1568961292364.png)
-
-```java
-message.setDelayTimeLevel(3);
-```
-
 ### 广播模式
 
-特点：最大的不同，将全部的消息内容，给每个消费者各一份（每个消费者 拥有一套完整的 消息数据）
-
-不需groupName相同
-
-设置成广播模式：消费者
+特点：与集群模式最大的不同，将全部的消息内容，给每个消费者各一份（每个消费者拥有一套完整的消息数据）并且不需groupName相同
 
 ```java
-        //设置成广播模式
-        consumer.setMessageModel(MessageModel.BROADCASTING) ;
+//设置成广播模式
+consumer.setMessageModel(MessageModel.BROADCASTING) ;
 ```
 
 设置订阅标签
@@ -656,18 +655,20 @@ message.setDelayTimeLevel(3);
  consumer.subscribe("mytopic1","tag1||tag2");
 ```
 
+##  偏移量Offset
 
+### 定义
 
-###  偏移量Offset
+offset是消费的进度，指向某个topic中下一条数据在队列中存放的位置
 
-offset是消费的进度，指向某个topic中 下一条数据在队列中存放的位置
+### offset存储在哪里？
 
-offset存储在哪里？本地存储（消费者的服务器）、远程存储（存放mq的服务器）？都有
+本地存储（消费者的服务器）、远程存储（存放mq的服务器）？都有
 
 - 集群模式：（远程存储）负载均衡，每个消费者 只消费一部分数据。 因为各个消费者 需要通过一个共同的指针offset 来指定每次消费的位置，因此此时 offset就需要存放在远程（队列服务器中）
-- 广播模式：（本地存储）因为广播模式下 每个消费者 都需要一套完整的 消息数据，因此每个消费者就需要使用一个指针offset来维护 当前消费的位置。
+- 广播模式：（本地存储）因为广播模式下每个消费者都需要一套完整的消息数据，因此每个消费者就需要使用一个指针offset来维护 当前消费的位置。
 
-API层面：
+### API层面
 
 远程存储：RemoteBrokerOffsetStore
 
@@ -683,7 +684,9 @@ API层面：
 
 ![1570613701473](RocketMQ笔记.assets/1570613701473.png)
 
-pull方式一
+### pull方式一
+
+循环拉取，有数据就处理
 
 ```java
 package com.yanqun.pull;
@@ -711,7 +714,7 @@ public class PullConsumer {
         consumer.start();
 
         System.out.println("pull consumer start...");
-
+		//返回的是队列合集
         Set<MessageQueue> mqs = consumer.fetchSubscribeMessageQueues("mytopic1");
         for(MessageQueue mq : mqs){
             //分别获取每个mq中的数据
@@ -721,7 +724,6 @@ public class PullConsumer {
                 System.out.println(pullResult);
                 //当消费pull了若个干消息之后，需要重新设置偏移量
                 setOffset(mq, pullResult.getNextBeginOffset()) ;
-
                 //有数据
                 if(  pullResult.getPullStatus()== PullStatus.FOUND ){
                     List<MessageExt> messages = pullResult.getMsgFoundList();
@@ -729,11 +731,11 @@ public class PullConsumer {
                         System.out.println(message);
                     }
                 }else if(pullResult.getPullStatus()== PullStatus.NO_MATCHED_MSG ){
-                    break ;
+                    //数据取完，终止循环
+                    break;
                 }else{
                     System.out.println("error...");
                 }
-
             }
         }
         consumer.shutdown();
@@ -743,16 +745,16 @@ public class PullConsumer {
     private static long getOffset(MessageQueue mq){
         return  offset.get(mq) == null ? 0 : offset.get(mq);
     }
+    //设置mq和偏移量的对应关系
     private static void setOffset(MessageQueue mq,long mqoffset){
         offset.put(mq,mqoffset);
-
     }
-
 }
-
 ```
 
-pull方式二（时间调度：每隔3秒主动拉去一次数据）
+### pull方式二
+
+时间调度：每隔3秒主动拉去一次数据
 
 ```java
 package com.yanqun.pull;
@@ -773,16 +775,14 @@ public class PullConsumerSchedule {
     public static void main(String[] args) throws Exception {
 
         String groupName = "pullGroup" ;
-
+		//定时调度Service
         MQPullConsumerScheduleService consumerService = new MQPullConsumerScheduleService("pullGroup" );
         consumerService.getDefaultMQPullConsumer().setNamesrvAddr(CONST.NAMESERVER_ADDR);
         consumerService.setMessageModel(MessageModel.CLUSTERING);
-//        consumerService.setNamesrvAddr(CONST.NAMESERVER_ADDR);
-//        consumerService.start();
 
         System.out.println("pull consumerService start...");
 
-        consumerService.registerPullTaskCallback("mytopic1" ,new PullTaskCallback(){//匿名内部类
+        consumerService.registerPullTaskCallback("mytopic1" ,new PullTaskCallback(){
             @Override
             public void doPullTask(MessageQueue mq, PullTaskContext pullTaskContext) {
                 System.out.println("----" + mq.getQueueId());
@@ -805,22 +805,20 @@ public class PullConsumerSchedule {
                     }
                     consumer.updateConsumeOffset(mq,pullResult.getNextBeginOffset());
                     //设置每次拉取的间隔时间
-                    pullTaskContext.setPullNextDelayTimeMillis( 3000 );
+                    pullTaskContext.setPullNextDelayTimeMillis(3000);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
             }
-        } );
-//        consumerService.shutdown();
+        });
+        consumerService.start();
     }
-
 }
-
 ```
 
 ## 消息局部顺序消费问题
 
-局部顺序消费：局部：把每一个用户的多个请求，顺序的存储在broker中同一个队列中。
+局部顺序消费：把每一个用户的多个请求，顺序的存储在broker中同一个队列中
 
 ![1571210841838](RocketMQ笔记.assets/1571210841838.png)
 
@@ -853,7 +851,7 @@ public class MyProducerOrder {
         } catch (MQClientException e) {
             e.printStackTrace();
         }
-     //准备消息
+     	//准备消息
         List<RequestInfo> requests = RequestService.getRequests();
 
         for(RequestInfo requestInfo :requests){
