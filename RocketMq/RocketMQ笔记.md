@@ -83,6 +83,7 @@ tar -zxvf    XXX.tar.gz（gz结尾用这个命令）
 unzip Xxx.zip（zip结尾用这个命令）
 
 <<<<<<< HEAD
+
 ### 配置master
 
 nameserver: 协调多个rocketmq
@@ -207,7 +208,7 @@ JAVA_OPT="${JAVA_OPT} -server -Xms1g -Xmx1g -Xmn1g
 #### 启动Namesrv
 
 bin中： nohup sh mqnamesrv &
-=======
+
 **配置日志：**
 
 在MQ文件夹下
@@ -227,17 +228,12 @@ JAVA_OPT="${JAVA_OPT} -server -Xms1g -Xmx1g -Xmn1g
 **启动Namesrv：**
 
 在bin中后台启动： nohup sh mqnamesrv &
->>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
 
-查看进程：
+**查看进程：**
 
 NamesrvStartup 说明启动Namesrv成功
 
-<<<<<<< HEAD
 #### 启动BrokerServer
-=======
-启动BrokerServer
->>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
 
 nohup sh mqbroker -c /usr/rocketmq/conf/2m-2s-async/broker-a.properties &
 
@@ -245,7 +241,6 @@ nohup sh mqbroker -c /usr/rocketmq/conf/2m-2s-async/broker-a.properties &
 
 BrokerStartup  说明broker启动成功
 
-<<<<<<< HEAD
 ## 控制台（Web界面）
 
 ### 下载
@@ -286,13 +281,7 @@ rocketmq.config.namesrvAddr=192.168.2.128:9876
 
 #### 将控制台代码打成jar，然后跑jar包
 
-=======
-
-
-#### 将控制台代码打成jar，然后跑jar包
-
->>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
-**打成jar:**
+**打成jar：**
 
 mvn clean package -Dmaven.test.skip=true
 
@@ -364,17 +353,18 @@ pom.xml
 </project>
 ```
 
-<<<<<<< HEAD
 #### 批量删除下载失败的依赖包
 
 批量删除 maven下载失败的jar【进maven本地仓库，敲cmd，执行这句话】：for /r %i in (*.lastUpdated) do del %i
 
 ### 第一个MQ程序
 
-=======
-### 第一个MQ程序
+~~~java
+public class CONST {
+    public static final String NAMESERVER_ADDR = "192.168.2.128:9876" ;
+}
+~~~
 
->>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
 #### 服务器地址代码
 
 ```
