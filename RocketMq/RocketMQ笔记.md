@@ -822,7 +822,7 @@ public class PullConsumerSchedule {
 
 ![1571210841838](RocketMQ笔记.assets/1571210841838.png)
 
-生产者
+### 生产者
 
 ```java
 package com.yanqun.producer;
@@ -872,12 +872,9 @@ public class MyProducerOrder {
         producer.shutdown();
     }
 }
-
 ```
 
-
-
-消费者
+### 消费者
 
 ```java
 package com.yanqun.comsumer;
@@ -919,10 +916,7 @@ public class MyConsumerOrder {
 
     }
 }
-
 ```
-
-
 
 ## 批量发送消息
 
@@ -950,11 +944,12 @@ public class MyProducerBatch {
         DefaultMQProducer producer = new DefaultMQProducer("myProducer");
         producer.setNamesrvAddr(CONST.NAMESERVER_ADDR);
         try {
-            producer.start(); //启动生产者
+            //启动生产者
+            producer.start(); 
         } catch (MQClientException e) {
             e.printStackTrace();
         }
-     //准备消息
+     	//准备消息
         List<RequestInfo> requests = RequestService.getRequests();
 
         List<Message> mgs = new ArrayList<>() ;
@@ -972,15 +967,15 @@ public class MyProducerBatch {
 
 ```
 
-
-
 ## 消息事务机制
 
-事务补偿机制： 生产者再向MQ Server提交事务时，有两次机会，如果第一次失败，则进行回查，回查后还会进行第二次提交/回滚。
+### 事务补偿机制
+
+ 生产者再向MQ Server提交事务时，有两次机会，如果第一次失败，则进行回查，回查后还会进行第二次提交/回滚，这样在弱网环境下会提高程序的健壮性
 
 ![1571473494394](RocketMQ笔记.assets/1571473494394.png)
 
-在MQserver中消息有三种状态：
+### 在MQserver中消息有三种状态
 
 提交状态：可以被消费者消费
 
@@ -988,9 +983,7 @@ public class MyProducerBatch {
 
 未知状态（中间状态）：需要借助于本地事务，进行一次回查，事务补偿机制
 
-
-
-生产者
+### 生产者
 
 ```java
 package com.yanqun.producer;
@@ -1043,27 +1036,18 @@ public class MyProducerTx {
         for(int i=0;i<3;i++) {
             Message msg = new Message("txTopic", "msg"+i, ("msg"+i+"Content").getBytes());
             try {
-                TransactionSendResult result = producer.sendMessageInTransaction(msg, null);//null表示 将全部的消息 都纳入到本地事务中
+                TransactionSendResult result = producer.sendMessageInTransaction(msg, null);//null表示 将全部的消息都纳入到本地事务中
                 System.out.println("发送："+result);
             } catch (MQClientException e) {
                 e.printStackTrace();
             }
         }
-
-
-
-
-//        producer.shutdown();
-
-
     }
 }
 
 ```
 
-
-
-​		消费者
+### 消费者
 
 ```java
 package com.yanqun.comsumer;
@@ -1117,19 +1101,13 @@ public class MyConsumerTx {
 
 msg 0 commit
 
-msg 1 rollback
+msg 1 rollback	//直接失败丢掉
 
 msg 2 ->unkonw -> commit 
 
 结果：msg0、msg2 
 
-
-
-注意：延迟消息、批量消息不支持事务机制。
-
-
-
-
+注意：延迟消息、批量消息不支持事务机制
 
 ## 概念
 
