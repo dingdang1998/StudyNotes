@@ -54,35 +54,19 @@ Redis , ZeroMQ
 
 ## 搭建RoketMQ环境
 
-<<<<<<< HEAD
 ### 部署环境
 
 centos7 :  192.168.2.128   root/root   
 
 ### 下载
-=======
-#### 部署环境
-
-centos7 :  192.168.2.128   root/root   
-
-#### 下载
->>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
-
 http://rocketmq.apache.org/release_notes/release-notes-4.4.0/  ：binary
 
 上传到centos7中
 
-<<<<<<< HEAD
 ### 解压
-=======
-#### 解压
->>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
-
 tar -zxvf    XXX.tar.gz（gz结尾用这个命令）
 
 unzip Xxx.zip（zip结尾用这个命令）
-
-<<<<<<< HEAD
 
 ### 配置master
 
@@ -90,25 +74,19 @@ nameserver: 协调多个rocketmq
 
 master : rocketmq主节点
 
-#### 域名映射
-=======
 #### 配置
 
 nameserver：协调多个rocketmq
 
 master（多个MQ中的老大）: rocketmq主节点
 
-**--配置master开始--**
-
-* 域名映射
->>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
+#### 域名映射
 
 vi /etc/hosts
 
 192.168.2.128 mqnameserver1
 192.168.2.128 mqmaster1
 
-<<<<<<< HEAD
 #### 存储路径 
 
 在rocketmq文件夹下
@@ -122,7 +100,6 @@ mkdir mqstore4.4/consumequeue
 mkdir mqstore4.4/index
 
 #### 配置消息队列broker
-=======
 * 存储路径
 
 如果MQ中的数据持久化，往哪里存储
@@ -138,21 +115,14 @@ mkdir mqstore/consumequeue（消费队列）
 mkdir mqstore/index（索引值）
 
 * 配置消息队列（broker）
->>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
 
 文件所在路径：/usr/rocketmq/conf
 
 **2m-2s-async（文件夹）：**2m   两个master , 2s 两个slaver  ,async：异步
 
-<<<<<<< HEAD
-配置单机版： broker-a.properties :
-
-brokerId：   0表示master              >0 表示slaver
-=======
 **配置单机版： broker-a.properties** 
 
 brokerId：0表示master 	 >0表示slaver
->>>>>>> d103f642ee61191ed0ca60606a9c130efcb664de
 
 全部内容
 
@@ -192,7 +162,6 @@ brokerRole=ASYNC_MASTER
 flushDiskType=ASYNC_FLUSH
 ```
 
-<<<<<<< HEAD
 #### 配置日志
 
 一次性的将 所有xml中的 ${user.home} 替换为/usr/rocketmq
